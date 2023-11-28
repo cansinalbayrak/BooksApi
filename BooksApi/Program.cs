@@ -16,15 +16,16 @@ builder.Services.AddDbContext<AppDbContext>(x =>
 x.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"));
 });
 
-builder.Services.AddIdentity<AppUser, AppRole>(x =>
-{
-x.User.RequireUniqueEmail = true;
-x.Password.RequiredLength = 5;
-}).AddEntityFrameworkStores<AppDbContext>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-    opt =>
+services.AddAuthentication(options =>
     {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
         opt.RequireHttpsMetadata = false;
         opt.TokenValidationParameters = new TokenValidationParameters()
         {
@@ -35,6 +36,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             ValidateLifetime = true,
         };
     });
+        builder.Services.AddIdentity<AppUser, AppRole>(x =>
+{
+x.User.RequireUniqueEmail = true;
+x.Password.RequiredLength = 5;
+}).AddEntityFrameworkStores<AppDbContext>();
+
 builder.Services.AddScoped<TokenGenerator>();
      
 
